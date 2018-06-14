@@ -15,7 +15,7 @@ var input2;
 var input3;
 var box1;
 var box2;
-
+//Comment
 
 function setup() {
   var cnv = createCanvas(1200, 560);
@@ -34,22 +34,22 @@ function setup() {
   box1 = document.getElementById("box1");
   box2 = document.getElementById("box2");
 
-  
+
   input1 = createInput("0");
   input1.parent("buttonPos");
   input1.position(80, 497);
   input1.style("width", "30px");
- 
+
   input2 = createInput("0");
   input2.parent("buttonPos2");
   input2.position(80, 537);
-  input2.style("width", "30px");  
+  input2.style("width", "30px");
 }
 
 function draw() {
   background(255);
   console.log(box1.checked);
- 
+
   //borders
   line(0, 0, 0, height);
   line(0, height, 0, height);
@@ -58,7 +58,7 @@ function draw() {
 
   push();
   translate(width/2,height);
- 
+
 
   //dotted lines for light cone
   strokeWeight(1);
@@ -74,30 +74,30 @@ function draw() {
   line(0, 0, beta1*height, -height);
   line(0, 0, width, -beta1*width);
   line(0, 0, -width, beta1*width);
-  
-  //black equitemp lines 
-  
+
+  //black equitemp lines
+
   strokeWeight(.5);
- 
+
   for (var i=0; i<2*height; i=i+spacing1) {
   	if (box1.checked==true){
   		line(0, -i, width, -i-beta1*width);
   		line(0, -i, -width, -i+beta1*width);
   	}
-  
- //black clocks 
+
+ //black clocks
     strokeWeight(1);
   	fill(255);
   	ellipse(gamma1*gamma1*beta1*i, -gamma1*gamma1*i, 17, 17);
   	textAlign(CENTER,CENTER);
   	text((i/spacing1).toFixed(0), (gamma1*gamma1*beta1*i+1), (-gamma1*gamma1*i+4));
-  
+
   	strokeWeight(.5);
     fill(0);
  	//ellipse((1/(1-beta1*beta2))*beta2*i, -(1/(1-beta1*beta2))*i, 4, 4);
 }
-  
-  
+
+
   //red equitemps
   stroke(255,0,0);
   if (box2.checked==true){
@@ -116,7 +116,7 @@ function draw() {
 
 
  for (var i=0; i<2*height; i=i+spacing2) {
-  
+
 //red dots on black t axis
   	//fill(255,0,0);
   	//ellipse((1/(1-beta1*beta2))*beta1*i, -(1/(1-beta1*beta2))*i, 5, 5);
@@ -144,14 +144,14 @@ function draw() {
   textSize(16);
   text("0.98", 268, 483);
   strokeWeight(1);
-  line(204,490,204,510); 
-  line(145,490,145,510); 
-  line(264,490,264,510); 
-  
-  line(204,530,204,550); 
-  line(145,530,145,550); 
-  line(264,530,264,550); 
-  
+  line(204,490,204,510);
+  line(145,490,145,510);
+  line(264,490,264,510);
+
+  line(204,530,204,550);
+  line(145,530,145,550);
+  line(264,530,264,550);
+
 
 
   strokeWeight(.25);
@@ -160,8 +160,8 @@ function draw() {
   fill(255, 0, 0);
   text("Velocity:", 40, 547);
 
-  
-        
+
+
 }
 
 function setSpeed1() {
@@ -177,4 +177,3 @@ function setSpeed2() {
 	spacing2 = spacing/gamma2;
 	input2.value(beta2);
 }
-
