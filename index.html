@@ -1,1 +1,49 @@
-Some html
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Moving Thing</title>
+	</head>
+
+	<body>
+
+	<style type="text/css">
+		input[type='checkbox'] {
+    		position: absolute;
+    		
+		}
+	</style>
+
+
+		<div id="myContainer"></div>
+		<span id="sliderPos" oninput="setSpeed1()"></span> 
+		<span id="buttonPos" onchange="
+		 	beta1=input1.value;
+  			speedSlider.value(input1.value()*200);
+  			setSpeed1();
+		 	">
+		</span> 
+
+		<span id="sliderPos2" oninput="setSpeed2()"></span> 
+		<span id="buttonPos2" onchange="
+		 	beta2=input2.value;
+  			speedSlider2.value(input2.value()*200);
+  			setSpeed2();
+		 	">
+		</span>
+
+        <input id="box1" type="checkbox" name="vehicle" value="blackTemp" style="top:490px;left: 330px;" checked><br>
+        <input id="box2" type="checkbox" name="vehicle" value="redTemp" style="top:540px;left: 330px;" checked><br>
+
+
+		<br>
+
+		 <!--
+         <span id="sliderPos2" oninput="setSpeed2()" style= "position:absolute">Red Velocity:</span>
+         -->
+	</body>
+
+  <script language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.2/p5.js"></script>
+  <script language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.3.14/addons/p5.dom.js"></script>
+  <script language="javascript" src="script2.js"></script>
+   
+</html>
