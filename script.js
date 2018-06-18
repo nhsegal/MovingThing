@@ -1,54 +1,29 @@
-var font,fontsize = 40;
-var moverRad = 10;
-var xpos = 600;
-var ypos = 140;
-var vel = 2;
-var acc = -.050;
 
-var points, seed, plot;
-//Comment
 
-//function preload(){
-//  font = loadFont('assets/SourceSansPro-Regular.otf');
-//}
-function setup() {
-  var cnv = createCanvas(1200, 500);
-  cnv.parent("stage");
-  points = [];
-		seed = 100 * random();
+var sketch = function(p){
+  p.moverRad = 10;
+  p.xpos = 600;
+  p.ypos = 140;
+  p.vel = 2;
+  p.acc = -.050;
 
-		for (i = 0; i < 100; i++) {
-			points[i] = new GPoint(i, 10 * noise(0.1 * i + seed));
-		}
+  p.setup  = function() {
+    p.createCanvas(1200, 500);
+    //cnv.parent("stage");
+  }
 
-		// Create a new plot and set its position on the screen
-		plot = new GPlot();
-		plot.setPos(0, 0);
-
-		// Add the points
-		plot.setPoints(points);
-
-		// Set the plot title and the axis labels
-		plot.setTitleText("A very simple example");
-		plot.getXAxis().setAxisLabelText("x axis");
-		plot.getYAxis().setAxisLabelText("y axis");
-
-		// Draw it!
-		plot.defaultDraw();
-
+  p.draw = function() {
+    p.background(80,180,80);
+    p.fill(0,210,255);
+    p.rect(0,0, 1200, 150);
+    p.drawNumberLine();
+    p.updateMotion();
+    p.drawMover();
+    p.drawPosGraph();
+  }
 
 }
-
-function draw() {
-  background(80,180,80);
-  fill(0,210,255);
-  rect(0,0, 1200, 150);
-  drawNumberLine();
-  updateMotion();
-  drawMover();
-  drawPosGraph();
-}
-
+var stage = new p5(sketch);
 function drawNumberLine() {
   fill(230,230,0);
   rect(50,160,1100,20);
