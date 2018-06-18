@@ -7,6 +7,20 @@ var sketch = function(p){
   p.vel = 2;
   p.acc = -.050;
 
+
+  function drawNumberLine() {
+    p.fill(230,230,0);
+    p.rect(50,160,1100,20);
+    p.fill(0);
+    p.textAlign(p.CENTER);
+    let i;
+    for (i = -10; i < 11; i++){
+      p.stroke(0);
+      p.text(i, 600+i*50+1,177);
+      p.line(600+i*50, 162, 600+i*50, 165);
+    }
+  }
+
   p.setup  = function() {
     p.createCanvas(1200, 500);
     //cnv.parent("stage");
@@ -16,26 +30,17 @@ var sketch = function(p){
     p.background(80,180,80);
     p.fill(0,210,255);
     p.rect(0,0, 1200, 150);
-    p.drawNumberLine();
-    p.updateMotion();
-    p.drawMover();
-    p.drawPosGraph();
+    drawNumberLine();
+    //updateMotion();
+    //drawMover();
+    //drawPosGraph();
   }
+
+
 
 }
 var stage = new p5(sketch);
-function drawNumberLine() {
-  fill(230,230,0);
-  rect(50,160,1100,20);
-  fill(0);
-  textAlign(CENTER);
-  let i;
-  for (i = -10; i < 11; i++){
-    stroke(0);
-    text(i, 600+i*50+1,177);
-    line(600+i*50, 162, 600+i*50, 165);
-  }
-}
+
 
 function drawMover(){
   ellipseMode(RADIUS);
