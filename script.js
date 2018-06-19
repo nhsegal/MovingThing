@@ -2,7 +2,7 @@ var posPoints = [];
 var velPoints = [];
 var t = 0;
 var deltaT = .01;
-var initialPos = 2;
+var initialPos = 1;
 var initialVel = 0;
 var initialAcc = 0;
 
@@ -60,6 +60,8 @@ var sketch = function(p){
 var posGraph = function(p) {
   var xMargin = 40;
   var yMargin = 10;
+  var xScale = 40;
+  var yScale = -10;
 
 	p.setup = function() {
     p.createCanvas(1100, 250);
@@ -82,11 +84,11 @@ var posGraph = function(p) {
   function plotPoints(){
     p.ellipseMode(p.CENTER);
     p.noStroke();
-    p.fill(120,120,250);
+    p.fill(0,0,250);
     for (var i = 0; i < posPoints.length; i++){
       p.push();
-      p.translate(deltaT*i, posPoints[i]);
-      p.ellipse(0 , 0,4,4);
+      p.translate(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
+      p.ellipse(0 , 0, 4, 4);
       p.pop();
     }
   }
