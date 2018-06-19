@@ -1,12 +1,17 @@
-var points = [];
+var posPoints = [];
+var velPoints = [];
 var t = 0;
+var deltaT = .01;
+var initialPos = 2;
+var initialVel = 0;
+var initialAcc = 0;
 
 var sketch = function(p){
   p.moverRad = 10;
-  p.xpos = 500;
+  p.xpos = initialPos;
   p.ypos = 140;
-  p.vel = 0;
-  p.acc = .000;
+  p.vel = initialVel;
+  p.acc = initialAcc;
 
   p.setup  = function() {
     p.createCanvas(1200, 200);
@@ -15,7 +20,7 @@ var sketch = function(p){
   p.draw = function() {
     p.background(80,180,80);
     p.fill(0,210,255);
-    p.rect(0,0, 1200, 150);
+    p.rect(0,0, p.width, .75*p.height);
     drawNumberLine();
     updateMotion();
     drawMover();
@@ -34,22 +39,32 @@ var sketch = function(p){
   }
 
   function drawMover(){
+    var stageScale = 50;
     p.ellipseMode(p.RADIUS);
     p.fill(0)
-    p.ellipse(p.xpos, p.ypos, p.moverRad, p.moverRad);
+    p.push();
+    p.translate(stageScale*p.xpos+p.width/2, p.ypos);
+    p.ellipse(0, 0, p.moverRad, p.moverRad);
+    p.pop();
   }
 
   function updateMotion(){
-    p.vel = p.vel + p.acc;
-    p.xpos = p.xpos + p.vel;
-    points.push(p.xpos);
-    t = t+1;
+    p.vel = p.vel + deltaT*p.acc;
+    p.xpos = p.xpos + deltaT*p.vel;
+    posPoints.push(p.xpos);
+    velPoints.push(p.vel);
+    t = t+deltaT;
   };
 }
+
 var posGraph = function(p) {
+  var xMargin = 40;
+  var yMargin = 10;
+
 	p.setup = function() {
-    p.createCanvas(1200, 300);
+    p.createCanvas(1100, 250);
   }
+
   p.draw = function() {
     drawAxes();
     plotPoints();
@@ -57,21 +72,23 @@ var posGraph = function(p) {
 
   function drawAxes(){
     p.stroke(0);
-    p.line(100,150,1100,150);
-    p.line(100,20,100,270);
-
+    p.push();
+    p.translate(xMargin, p.height/2);
+    p.line(0,-p.height/2+yMargin,0,p.height/2-yMargin);
+    p.line(0,0,p.width-xMargin,0)
+    p.pop();
   }
 
   function plotPoints(){
     p.ellipseMode(p.CENTER);
     p.noStroke();
     p.fill(120,120,250);
-    var scalefactor = .02   //50 pixels to 1 meter
-    for (var i = 0; i < points.length; i++){
-      p.ellipse(2*i+100,-scalefactor*points[i]+162,4,4);
-
+    for (var i = 0; i < posPoints.length; i++){
+      p.push();
+      p.translate(deltaT*i, posPoints[i]);
+      p.ellipse(0 , 0,4,4);
+      p.pop();
     }
-    console.log(points);
   }
 
 };
