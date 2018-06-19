@@ -1,5 +1,6 @@
 var posPoints = [];
 var velPoints = [];
+var accPoints = [];
 var t = 0;
 var deltaT = .01;
 var initialPos = 0;
@@ -20,6 +21,10 @@ function togglePlaying(){
   }
 }
 
+function setValue(){
+  posPoints[posPoints.length]= posSlider.value()-10;
+  console.log('here');
+}
 var sketch = function(p){
   p.moverRad = 10;
   p.xpos = initialPos;
@@ -32,6 +37,14 @@ var sketch = function(p){
     StartButton = p.createButton('Go');
     StartButton.position(29, 29);
     StartButton.mousePressed(togglePlaying);
+    posSlider= p.createSlider(0, 20, 10);
+    velSlider= p.createSlider(0, 10, 5);
+    accSlider= p.createSlider(0, 10, 5);
+    posSlider.position(p.width/2, 200);
+    velSlider.position(p.width/2, 240);
+    accSlider.position(p.width/2, 280);
+    posSlider.changed(setValue);
+    //posSlider.html("Position");
   }
 
   p.draw = function() {
@@ -43,6 +56,7 @@ var sketch = function(p){
       updateMotion();
     }
     drawMover();
+
   }
 
   function drawNumberLine() {
@@ -72,6 +86,7 @@ var sketch = function(p){
     p.xpos = p.xpos + deltaT*p.vel;
     posPoints.push(p.xpos);
     velPoints.push(p.vel);
+    accPoints.push(p.acc);
     t = t+deltaT;
   };
 }
@@ -84,12 +99,7 @@ var posGraph = function(p) {
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
-    posSlider= p.createSlider(-10,10,0);
-    velSlider= p.createSlider(-10,10,0);
-    accSlider= p.createSlider(-10,10,0);
-    posSlider.position(p.width/2, 200);
-    velSlider.position(p.width/2, 240);
-    accSlider.position(p.width/2, 280);
+
   }
 
   p.draw = function() {
@@ -121,7 +131,6 @@ var posGraph = function(p) {
 
 
 };
-
 var velGraph = function(p) {
   console.log('here');
   var xMargin = 40;
@@ -162,7 +171,6 @@ var velGraph = function(p) {
 
 
 };
-
 var stage = new p5(sketch);
 var posGraph = new p5(posGraph);
 var velGraph = new p5(velGraph);
