@@ -5,6 +5,20 @@ var deltaT = .01;
 var initialPos = 0;
 var initialVel = 1;
 var initialAcc = 0;
+var posSlider, velSlider, accSlider;
+var StartButton, PauseButton, ResetButton;
+var playing = false;
+
+function togglePlaying(){
+  if (!playing){
+    playing = true;
+    StartButton.html('Pause');
+  }
+  else{
+    playing = false;
+    StartButton.html('Go');
+  }
+}
 
 var sketch = function(p){
   p.moverRad = 10;
@@ -15,6 +29,9 @@ var sketch = function(p){
 
   p.setup  = function() {
     p.createCanvas(1200, 120);
+    StartButton = p.createButton('Go');
+    StartButton.position(29, 29);
+    StartButton.mousePressed(togglePlaying);
   }
 
   p.draw = function() {
@@ -22,7 +39,9 @@ var sketch = function(p){
     p.fill(0,210,255);
     p.rect(0,0, p.width, .75*p.height);
     drawNumberLine();
-    updateMotion();
+    if (playing){
+      updateMotion();
+    }
     drawMover();
   }
 
@@ -65,6 +84,12 @@ var posGraph = function(p) {
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
+    posSlider= p.createSlider(-10,10,0);
+    velSlider= p.createSlider(-10,10,0);
+    accSlider= p.createSlider(-10,10,0);
+    posSlider.position(p.width/2, 200);
+    velSlider.position(p.width/2, 240);
+    accSlider.position(p.width/2, 280);
   }
 
   p.draw = function() {
