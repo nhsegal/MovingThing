@@ -100,15 +100,18 @@ var sketch = function(p){
     if (playing){
       velPoints.push((velSlider.value()-100)/10);
       vel = velPoints[velPoints.length-1];
+      //pos = pos + vel*deltaT
+      posPoints.push(pos+vel*deltaT);
+      posSlider.value((pos+vel*deltaT)*10 + 100);
       pos = pos + vel*deltaT
-      posPoints.push(pos);
-      posSlider.value(pos*10 + 100);
+      //vel = (velSlider.value()-100)/10;
     }
     if (!playing){
       velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
+      vel = velPoints[velPoints.length-1];
     }
-    vel = (velSlider.value()-100)/10;
-    pos = pos + vel*deltaT
+
+
   }
 }
 
