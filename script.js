@@ -4,11 +4,27 @@ var accPoints = [];
 var t = 0;
 var deltaT = .01;
 var pos = 0;
-var vel = 1;
+var vel = 0;
 var acc = 0;
 var posSlider, velSlider, accSlider;
-var StartButton, PauseButton, ResetButton;
+var StartButton, ResetButton;
 var playing = false;
+var clearGraphs = false;
+
+function reset(){
+  posPoints = [];
+  velPoints = [];
+  accPoints = [];
+  t = 0;
+  deltaT = .01;
+  pos = 0;
+  vel = 0;
+  acc = 0;
+  playing = false;
+  clearGraphs = true;
+  StartButton.html('Go');
+}
+
 
 function togglePlaying(){
   if (!playing){
@@ -28,6 +44,9 @@ var sketch = function(p){
     StartButton = p.createButton('Go');
     StartButton.position(29, 29);
     StartButton.mousePressed(togglePlaying);
+    ResetButton = p.createButton('Reset');
+    ResetButton.position(29, 59);
+    ResetButton.mousePressed(reset);
     posSlider= p.createSlider(0, 200, 100);
     velSlider= p.createSlider(0, 200, 100);
     accSlider= p.createSlider(0, 200, 100);
@@ -141,8 +160,12 @@ var posGraph = function(p) {
   }
 
   p.draw = function() {
-    drawAxes();
+    if (clearGraphs){
+      p.setup();
+    }
     plotPoints();
+    drawAxes();
+
   }
 
   function drawAxes(){
@@ -160,6 +183,7 @@ var posGraph = function(p) {
     p.strokeWeight(2);
     p.noFill();
     p.strokeJoin(p.ROUND);
+
     p.beginShape();
     for (var i = 0; i < posPoints.length; i++){
       p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
@@ -179,6 +203,9 @@ var velGraph = function(p) {
   }
 
   p.draw = function() {
+    if (clearGraphs){
+      p.setup();
+    }
     drawAxes();
     plotPoints();
   }
@@ -219,6 +246,10 @@ var accGraph = function(p) {
   }
 
   p.draw = function() {
+    if (clearGraphs){
+      p.setup();
+      clearGraphs = !clearGraphs;
+    }
     drawAxes();
     plotPoints();
   }
