@@ -6,6 +6,7 @@ var deltaT = .01;
 var initialPos = 0;
 var initialVel = 1;
 var initialAcc = 0;
+var pos, vel, acc;
 var posSlider, velSlider, accSlider;
 var StartButton, PauseButton, ResetButton;
 var playing = false;
@@ -21,10 +22,8 @@ function togglePlaying(){
   }
 }
 
-function setValue(){
-  posPoints[posPoints.length]= posSlider.value()-10;
-  console.log('here');
-}
+
+
 var sketch = function(p){
   p.moverRad = 10;
   p.xpos = initialPos;
@@ -38,12 +37,13 @@ var sketch = function(p){
     StartButton.position(29, 29);
     StartButton.mousePressed(togglePlaying);
     posSlider= p.createSlider(0, 20, 10);
-    velSlider= p.createSlider(0, 10, 5);
-    accSlider= p.createSlider(0, 10, 5);
+    velSlider= p.createSlider(0, 20, 10);
+    accSlider= p.createSlider(0, 20, 10);
     posSlider.position(p.width/2, 200);
     velSlider.position(p.width/2, 240);
     accSlider.position(p.width/2, 280);
-    posSlider.changed(setValue);
+    posSlider.input(setValue);
+    //posSlider.changed(setValue);
     //posSlider.html("Position");
   }
 
@@ -56,7 +56,7 @@ var sketch = function(p){
       updateMotion();
     }
     drawMover();
-
+    posSlider.changed(setValue);
   }
 
   function drawNumberLine() {
@@ -89,6 +89,13 @@ var sketch = function(p){
     accPoints.push(p.acc);
     t = t+deltaT;
   };
+
+  function setValue(){
+    posPoints.push(posSlider.value()-10);
+    p.xpos = posSlider.value()-10;
+    p.vel = 0;
+    velPoints.push((posPoints[posPoints.length-1]-posPoints[posPoints.length-3])/(2*deltaT));
+  }
 }
 
 var posGraph = function(p) {
@@ -124,6 +131,10 @@ var posGraph = function(p) {
       p.push();
       p.translate(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
       p.ellipse(0 , 0, 4, 4);
+      if (i>0){
+          p.stroke(0);
+          p.line(0,0,deltaT,posPoints[i-1]);
+      }
       p.pop();
     }
   }
