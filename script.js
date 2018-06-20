@@ -2,7 +2,7 @@ var posPoints = [];
 var velPoints = [];
 var accPoints = [];
 var t = 0;
-var deltaT = .01;
+var deltaT = .002;
 var pos = 0;
 var vel = 0;
 var acc = 0;
@@ -10,6 +10,7 @@ var posSlider, velSlider, accSlider;
 var StartButton, ResetButton;
 var playing = false;
 var clearGraphs = false;
+var controlled = false;
 
 function reset(){
   posPoints = [];
@@ -23,9 +24,10 @@ function reset(){
   playing = false;
   clearGraphs = true;
   StartButton.html('Go');
+  posSlider.value(100);
+  velSlider.value(100);
+  accSlider.value(100);
 }
-
-
 function togglePlaying(){
   if (!playing){
     playing = true;
@@ -60,7 +62,6 @@ var sketch = function(p){
     velSlider.style('rotate', 270);
     accSlider.style('rotate', 270);
   }
-
   p.draw = function() {
     p.background(80,180,80);
     p.fill(0,210,255);
@@ -70,7 +71,9 @@ var sketch = function(p){
       updateMotion();
     }
     drawMover();
-    posSlider.changed(function(){vel=0;});
+    posSlider.changed(function(){vel=0; acc=0; controlled=false});
+    velSlider.changed(function(){ acc=0; controlled=false});
+    accSlider.changed(function(){controlled=false});
   }
 
   function drawNumberLine() {
@@ -95,37 +98,58 @@ var sketch = function(p){
     p.pop();
   }
   function updateMotion(){
-    vel = vel + deltaT*acc;
-    pos = pos + deltaT*vel;
+    if (!controlled){
+      vel = vel + deltaT*acc;
+      pos = pos + deltaT*vel;
+    }
     posPoints.push(pos);
     velPoints.push(vel);
     accPoints.push(acc);
     t = t+deltaT;
   };
   function setPosValue(){
+    controlled = true;
+    pos = (posSlider.value()-100)/10;
+    var v1 = (posPoints[posPoints.length-1]-posPoints[posPoints.length-2])/deltaT;
+    var v2 = (posPoints[posPoints.length-2]-posPoints[posPoints.length-3])/deltaT;
+    var v3 = (posPoints[posPoints.length-3]-posPoints[posPoints.length-4])/deltaT;
+    var v4 = (posPoints[posPoints.length-4]-posPoints[posPoints.length-5])/deltaT;
+    var a1 = (v1 - v2)/deltaT;
+    var a2 = (v2 - v3)/deltaT;
+    var a3 = (v3 - v4)/deltaT;
     if (playing){
-      posPoints.push((posSlider.value()-100)/10);
-      var v1 = (posPoints[posPoints.length-1]-posPoints[posPoints.length-2])/deltaT
-      var v2 = (posPoints[posPoints.length-2]-posPoints[posPoints.length-3])/deltaT
-      var v3 = (posPoints[posPoints.length-3]-posPoints[posPoints.length-4])/(deltaT)
-      var v4 = (posPoints[posPoints.length-4]-posPoints[posPoints.length-5])/(deltaT)
+      posPoints.push(pos);
       velPoints.push((v1+v2+v3+v4)/4);
+      accPoints.push((a1+a2+a3)/3);
       vel = velPoints[velPoints.length-1];
+      acc = accPoints[accPoints.length-1];
       velSlider.value(vel*10 +100);
+      accSlider.value(acc*10 +100);
     }
     if (!playing){
       posPoints[posPoints.length-1] = (posSlider.value()-100)/10;
+      posSlider.changed(velPoints[velPoints.length-1] = (v1+v2+v3+v4)/6,  accPoints[accPoints.length-1] = (a1)/6)
+
+
     }
-    pos = (posSlider.value()-100)/10;
+
 
   }
   function setVelValue(){
+    controlled = true;
     if (playing){
       velPoints.push((velSlider.value()-100)/10);
       vel = velPoints[velPoints.length-1];
       posPoints.push(pos+vel*deltaT);
       posSlider.value((pos+vel*deltaT)*10 + 100);
       pos = pos + vel*deltaT
+      var a1 = (velPoints[velPoints.length-1]-velPoints[velPoints.length-2])/deltaT
+      var a2 = (velPoints[posPoints.length-2]-velPoints[posPoints.length-3])/deltaT
+      var a3 = (velPoints[posPoints.length-3]-velPoints[posPoints.length-4])/(deltaT)
+      var a4 = (velPoints[posPoints.length-4]-velPoints[posPoints.length-5])/(deltaT)
+      accPoints.push((a1+a2+a3+a4)/4);
+      acc = accPoints[accPoints.length-1];
+      accSlider.value(acc);
     }
     if (!playing){
       velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
@@ -133,6 +157,7 @@ var sketch = function(p){
     }
   }
   function setAccValue(){
+    controlled = true;
     if (playing){
       accPoints.push((accSlider.value()-100)/10);
       acc = accPoints[accPoints.length-1];
@@ -239,7 +264,7 @@ var accGraph = function(p) {
   var xMargin = 80;
   var yMargin = 10;
   var xScale = 80;
-  var yScale = -4;
+  var yScale = -1;
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
