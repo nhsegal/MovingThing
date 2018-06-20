@@ -3,10 +3,9 @@ var velPoints = [];
 var accPoints = [];
 var t = 0;
 var deltaT = .01;
-var initialPos = 0;
-var initialVel = 1;
-var initialAcc = 0;
-var pos, vel, acc;
+var pos = 0;
+var vel = 1;
+var acc = 0;
 var posSlider, velSlider, accSlider;
 var StartButton, PauseButton, ResetButton;
 var playing = false;
@@ -22,29 +21,23 @@ function togglePlaying(){
   }
 }
 
-
-
 var sketch = function(p){
   p.moverRad = 10;
-  p.xpos = initialPos;
   p.ypos = 80;
-  p.vel = initialVel;
-  p.acc = initialAcc;
 
   p.setup  = function() {
     p.createCanvas(1200, 120);
     StartButton = p.createButton('Go');
     StartButton.position(29, 29);
     StartButton.mousePressed(togglePlaying);
-    posSlider= p.createSlider(0, 20, 10);
+    posSlider= p.createSlider(0, 200, 100);
     velSlider= p.createSlider(0, 20, 10);
     accSlider= p.createSlider(0, 20, 10);
-    posSlider.position(p.width/2, 200);
-    velSlider.position(p.width/2, 240);
-    accSlider.position(p.width/2, 280);
+    posSlider.position(p.width/2, 700);
+    velSlider.position(p.width/2, 750);
+    accSlider.position(p.width/2, 800);
     posSlider.input(setValue);
     //posSlider.changed(setValue);
-    //posSlider.html("Position");
   }
 
   p.draw = function() {
@@ -76,25 +69,31 @@ var sketch = function(p){
     p.ellipseMode(p.RADIUS);
     p.fill(0)
     p.push();
-    p.translate(stageScale*p.xpos+p.width/2, p.ypos);
+    p.translate(stageScale*pos+p.width/2, p.ypos);
     p.ellipse(0, 0, p.moverRad, p.moverRad);
     p.pop();
   }
 
   function updateMotion(){
-    p.vel = p.vel + deltaT*p.acc;
-    p.xpos = p.xpos + deltaT*p.vel;
-    posPoints.push(p.xpos);
-    velPoints.push(p.vel);
-    accPoints.push(p.acc);
+    vel = vel + deltaT*acc;
+    pos = pos + deltaT*vel;
+    posPoints.push(pos);
+    velPoints.push(vel);
+    accPoints.push(acc);
     t = t+deltaT;
   };
 
   function setValue(){
-    posPoints.push(posSlider.value()-10);
-    p.xpos = posSlider.value()-10;
-    p.vel = 0;
-    velPoints.push((posPoints[posPoints.length-1]-posPoints[posPoints.length-3])/(2*deltaT));
+    posPoints[posPoints.length-1]=(posSlider.value()-100)/10;
+    pos = (posSlider.value()-100)/10;
+    vel = 0;
+    if(playing){
+      velPoints.push(posPoints[posPoints.length-1]-posPoints[posPoints.length-2]);
+    }
+    else {
+      velPoints[velPoints.length-1]= (posPoints[posPoints.length-1]-posPoints[posPoints.length-2])/deltaT;
+    }
+
   }
 }
 
@@ -125,63 +124,62 @@ var posGraph = function(p) {
 
   function plotPoints(){
     p.ellipseMode(p.CENTER);
-    p.noStroke();
-    p.fill(0,0,250);
+    p.stroke(0,0,250);
+    p.noFill();
+    //p.fill(0,0,250);
+
+    p.beginShape();
     for (var i = 0; i < posPoints.length; i++){
-      p.push();
-      p.translate(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
-      p.ellipse(0 , 0, 4, 4);
-      if (i>0){
-          p.stroke(0);
-          p.line(0,0,deltaT,posPoints[i-1]);
-      }
-      p.pop();
+      //p.push();
+      //p.translate(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
+      p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
+      //p.ellipse(0,0, 4, 4);
+      //if (i>0){
+      //    p.stroke(0,0,250);
+      //    p.line(0,0,-deltaT,posPoints[i]);
+      //}
+      //p.pop();
     }
+    p.endShape();
   }
 
 
 
 };
 var velGraph = function(p) {
-  console.log('here');
-  var xMargin = 40;
-  var yMargin = 10;
-  var xScale = 80;
-  var yScale = -20;
-
 	p.setup = function() {
     p.createCanvas(1100, 200);
   }
-
   p.draw = function() {
-    drawAxes();
-    plotPoints();
+    this.makeGraph(velPoints, (250,0,0))
   }
-
-  function drawAxes(){
-    p.stroke(0);
-    p.push();
-    p.translate(xMargin, p.height/2);
-    p.line(0,-p.height/2+yMargin,0,p.height/2-yMargin);
-    p.line(0,0,p.width-xMargin,0)
-    p.pop();
-  }
-
-  function plotPoints(){
-    p.ellipseMode(p.CENTER);
-    p.noStroke();
-    p.fill(250,0,0);
-    for (var i = 0; i < velPoints.length; i++){
-      p.push();
-      p.translate(xScale*deltaT*i + xMargin, p.height/2+ yScale*velPoints[i]);
-      p.ellipse(0 , 0, 4, 4);
-      p.pop();
-    }
-  }
-
-
-
 };
+
+function makeGraph(data, color, xScale= 80, yScale=-20){
+  var xMargin = 40;
+  var yMargin = 10;
+  function drawAxes(){
+    stroke(0);
+    push();
+    translate(xMargin, height/2);
+    line(0,-height/2+yMargin,0,height/2-yMargin);
+    line(0,0,width-xMargin,0)
+    pop();
+  }
+  function plotPoints(){
+    //stroke(color);
+    noFill();
+    beginShape();
+    for (var i = 0; i < data.length; i++){
+      vertex(xScale*deltaT*i + xMargin, height/2+ yScale*posPoints[i]);
+    }
+    endShape();
+  }
+
+  drawAxes();
+  plotPoints();
+}
+
 var stage = new p5(sketch);
 var posGraph = new p5(posGraph);
 var velGraph = new p5(velGraph);
