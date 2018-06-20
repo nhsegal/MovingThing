@@ -32,11 +32,14 @@ var sketch = function(p){
     posSlider= p.createSlider(0, 200, 100);
     velSlider= p.createSlider(0, 200, 100);
     accSlider= p.createSlider(0, 200, 100);
-    posSlider.position(p.width/2, 200);
-    velSlider.position(p.width/2, 240);
-    accSlider.position(p.width/2, 280);
+    posSlider.position(-10, 225);
+    velSlider.position(-10, 430);
+    accSlider.position(-10, 640);
     posSlider.input(setPosValue);
     velSlider.input(setVelValue);
+    posSlider.style('rotate', 270);
+    velSlider.style('rotate', 270);
+    accSlider.style('rotate', 270);
   }
 
   p.draw = function() {
@@ -81,39 +84,39 @@ var sketch = function(p){
   };
   function setPosValue(){
     if (playing){
-      posPoints.push((posSlider.value()-100)/2);
+      posPoints.push((posSlider.value()-100)/10);
       velPoints.push((posPoints[posPoints.length-1]-posPoints[posPoints.length-3])/(2*deltaT));
       vel = velPoints[velPoints.length-1];
+      velSlider.value(vel*10 +100);
     }
     if (!playing){
-      posPoints[posPoints.length-1] = (posSlider.value()-100)/2;
-      pos = (posSlider.value()-100)/2;
-      //velPoints[velPoints.length-1] = (posPoints[posPoints.length-1]-posPoints[posPoints.length-10])/(9*deltaT);
+      posPoints[posPoints.length-1] = (posSlider.value()-100)/10;
     }
-    pos = (posSlider.value()-100)/2;
+    pos = (posSlider.value()-100)/10;
 
   }
 
   function setVelValue(){
     if (playing){
-      velPoints.push((velSlider.value()-100)/2);
+      velPoints.push((velSlider.value()-100)/10);
       vel = velPoints[velPoints.length-1];
       pos = pos + vel*deltaT
       posPoints.push(pos);
+      posSlider.value(pos*10 + 100);
     }
     if (!playing){
-      velPoints[velPoints.length-1] = (velSlider.value()-100)/2;
+      velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
     }
-    vel = (velSlider.value()-100)/2;
+    vel = (velSlider.value()-100)/10;
     pos = pos + vel*deltaT
   }
 }
 
 var posGraph = function(p) {
-  var xMargin = 40;
+  var xMargin = 80;
   var yMargin = 10;
   var xScale = 80;
-  var yScale = -10;
+  var yScale = -8;
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
@@ -148,10 +151,10 @@ var posGraph = function(p) {
 
 };
 var velGraph = function(p) {
-  var xMargin = 40;
+  var xMargin = 80;
   var yMargin = 10;
   var xScale = 80;
-  var yScale = -2;
+  var yScale = -4;
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
