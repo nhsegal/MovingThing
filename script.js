@@ -22,9 +22,9 @@ let len = 16;
 let average = (array) => array.reduce((a, b) => a + b) / array.length;
 
 function reset(){
-  posPoints = [];
-  velPoints = [];
-  accPoints = [];
+  posPoints.length=0;
+  velPoints.length=0;
+  accPoints.length=0;
   t = 0;
   deltaT = .01;
   pos = 0;
@@ -39,11 +39,16 @@ function reset(){
   posControlled = false;
   velControlled = false;
   accControlled = false;
-  for (let i =0; i<len; i++){
-    posArr[i] = 0;
-    velArr[i] = 0;
-    accArr[i] = 0;
+  posArr.length = 0;
+  velArr.length = 0;
+  accArr.length = 0;
+
+  for (let i = 0; i<len; i++){
+    posArr.push(0);
+    velArr.push(0);
+    accArr.push(0);
   }
+  console.log('eher');
 }
 
 function togglePlaying(){
