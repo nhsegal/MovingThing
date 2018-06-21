@@ -133,10 +133,11 @@ var sketch = function(p){
       v2 = (1/3)*(velPoints.slice(velPoints.length-1,velPoints.length)[0]+
         velPoints.slice(velPoints.length-2,velPoints.length-1)[0]+
         velPoints.slice(velPoints.length-3,velPoints.length-2)[0]);
-        if ((t >= 0.8) && (t<0.85)){
+      /*  if ((t >= 0.8) && (t<0.85)){
           temp = posPoints.slice(posPoints.length-1,posPoints.length)[0]
           console.log(temp);
         }
+        */
     }
     if (!posControlled || !velControlled || !accControlled){
       vel = vel + deltaT*acc;
@@ -177,8 +178,6 @@ var sketch = function(p){
     }
     if (!playing){
       posPoints[posPoints.length-1] = (posSlider.value()-100)/10;
-      //posPoints[posPoints.length-2] = (posPoints.slice(posPoints.length-1, posPoints.length)[0]
-      //+ posPoints.slice(posPoints.length-2, posPoints.length-1)[0]) /2;
       pos = posPoints[posPoints.length-1];
 
       velPoints[velPoints.length-1] = (posPoints[posPoints.length-1] - posPoints[posPoints.length-4])/(3*deltaT);
@@ -197,7 +196,6 @@ var sketch = function(p){
       pos = pos + vel*deltaT;
       posPoints.push(pos);
       posSlider.value(pos*10 + 100);
-
       accPoints.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-11])/(10*deltaT));
       acc = accPoints[accPoints.length-1];
       accSlider.value((acc+10)*10);
@@ -241,7 +239,6 @@ var posGraph = function(p) {
       p.setup();
     }
     plotPoints();
-    //if (velPoints.length == 30){console.log(velPoints)};
     drawAxes();
 
   }
