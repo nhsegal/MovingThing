@@ -20,6 +20,8 @@ var a1 = 0;
 var a2 = 0;
 var a3 = 0;
 
+var tolerance = 0.1;
+
 function reset(){
   posPoints = [];
   velPoints = [];
@@ -29,6 +31,13 @@ function reset(){
   pos = 0;
   vel = 0;
   acc = 0;
+  v1 = 0;
+  v2 = 0;
+  v3 = 0;
+  v4 = 0;
+  a1 = 0;
+  a2 = 0;
+  a3 = 0;
   playing = false;
   clearGraphs = true;
   StartButton.html('Go');
@@ -36,11 +45,9 @@ function reset(){
   velSlider.value(100);
   accSlider.value(100);
 }
+
 function togglePlaying(){
   if (!playing){
-    accPoints.push(acc);//(a1+a2+a3)/3);
-    velPoints.push(vel);//(v1+v2+v3+v4)/4);
-    posPoints.push(pos);
     StartButton.html('Pause');
     playing = true;
   }
@@ -49,6 +56,7 @@ function togglePlaying(){
     StartButton.html('Go');
   }
 }
+
 var sketch = function(p){
   p.moverRad = 10;
   p.ypos = 80;
@@ -67,31 +75,32 @@ var sketch = function(p){
     velSlider.position(-10, 430);
     accSlider.position(-10, 640);
     posSlider.input(setPosValue);
-
-    posSlider.mousePressed(
-      function(){
-        console.log('here');
-        posPoints.push(pos);
-        velPoints.push((v1+v2+v3+v4)/4);
-        accPoints.push((a1+a2+a3)/3);
-        vel=0;
-        acc=0;
-        controlled=true});
-        
-    posSlider.mouseReleased(function(){
-      console.log('there');
-      posPoints.push(pos);
-      velPoints.push((v1+v2+v3+v4)/4);
-      accPoints.push((a1+a2+a3)/3);
-      vel=0;
-      acc=0;
-      controlled=false});
-
     velSlider.input(setVelValue);
     accSlider.input(setAccValue);
     posSlider.style('rotate', 270);
     velSlider.style('rotate', 270);
     accSlider.style('rotate', 270);
+
+    /*
+        posSlider.mousePressed(
+          function(){
+            console.log('here');
+            posPoints.push(pos);
+            velPoints.push((v1+v2+v3+v4)/4);
+            accPoints.push((a1+a2+a3)/3);
+            vel=0;
+            acc=0;
+            controlled=true});
+
+        posSlider.mouseReleased(function(){
+          console.log('there');
+          posPoints.push(pos);
+          velPoints.push((v1+v2+v3+v4)/4);
+          accPoints.push((a1+a2+a3)/3);
+          vel=0;
+          acc=0;
+          controlled=false});
+    */
   }
   p.draw = function() {
     p.background(80,180,80);
@@ -102,9 +111,7 @@ var sketch = function(p){
       updateMotion();
     }
     drawMover();
-
-
-
+    posSlider.changed(function(){ vel= 0; acc=0; controlled=false});
     velSlider.changed(function(){ acc=0; controlled=false});
     accSlider.changed(function(){controlled=false});
   }
@@ -138,35 +145,41 @@ var sketch = function(p){
     posPoints.push(pos);
     velPoints.push(vel);
     accPoints.push(acc);
+    if (posPoints.length > 8){
+      posPoints[posPoints.length-2] = (posPoints[posPoints.length-1] + posPoints[posPoints.length-3])/2;
+      velPoints[velPoints.length-2] = (posPoints[posPoints.length-1] - posPoints[posPoints.length-6])/(5*deltaT);
+      accPoints[accPoints.length-2] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-6])/(5*deltaT);
+    }
     t = t+deltaT;
   };
+
   function setPosValue(){
     controlled = true;
-    pos = (posSlider.value()-100)/10;
-    v1 = (posPoints[posPoints.length-1]-posPoints[posPoints.length-2])/deltaT;
-    v2 = (posPoints[posPoints.length-2]-posPoints[posPoints.length-3])/deltaT;
-    v3 = (posPoints[posPoints.length-3]-posPoints[posPoints.length-4])/deltaT;
-    v4 = (posPoints[posPoints.length-4]-posPoints[posPoints.length-5])/deltaT;
-    a1 = (v1 - v2)/deltaT;
-    a2 = (v2 - v3)/deltaT;
-    a3 = (v3 - v4)/deltaT;
     if (playing){
+      pos = (posSlider.value()-100)/10;
       posPoints.push(pos);
-      velPoints.push((v1+v2+v3+v4)/4);
-      accPoints.push((a1+a2+a3)/3);
-      vel = velPoints[velPoints.length-1];
+      vel = (posPoints[posPoints.length-1]-posPoints[posPoints.length-4])/(3*deltaT);
+      velPoints.push(vel);
+      velSlider.value(vel);
+      accPoints.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-3])/(2*deltaT));
       acc = accPoints[accPoints.length-1];
-      velSlider.value(vel*10 +100);
-      accSlider.value(acc*10 +100);
+      accSlider.value(acc);
     }
     if (!playing){
-      posPoints[posPoints.length-1] = pos;
-      velPoints[velPoints.length-1] = (v1);//+v2+v3+v4)/4;
-      accPoints[accPoints.length-1] = (a1);//(a1+a2+a3)/3;
+      posPoints[posPoints.length-1] = (posSlider.value()-100)/10;
+      posPoints[posPoints.length-2] = (posPoints[posPoints.length-1] + posPoints[posPoints.length-3])/2;
+      pos = posPoints[posPoints.length-1];
+
+      velPoints[velPoints.length-1] = (posPoints[posPoints.length-1] - posPoints[posPoints.length-4])/(3*deltaT);
+      //velPoints[velPoints.length-2] = (velPoints[velPoints.length-1] + velPoints[velPoints.length-3])/2;
+      vel = velPoints[velPoints.length-1];
+
+      accPoints[accPoints.length-1] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-4])/(3*deltaT);
+      //accPoints[accPoints.length-2] = (accPoints[accPoints.length-1] + accPoints[accPoints.length-3])/2;
+      acc = accPoints[accPoints.length-1];
     }
-
-
   }
+
   function setVelValue(){
     controlled = true;
     if (playing){
@@ -178,14 +191,15 @@ var sketch = function(p){
       a1 = (velPoints[velPoints.length-1]-velPoints[velPoints.length-2])/deltaT
       a2 = (velPoints[posPoints.length-2]-velPoints[posPoints.length-3])/deltaT
       a3 = (velPoints[posPoints.length-3]-velPoints[posPoints.length-4])/(deltaT)
-      a4 = (velPoints[posPoints.length-4]-velPoints[posPoints.length-5])/(deltaT)
-      accPoints.push((a1+a2+a3+a4)/4);
+      accPoints.push((a1+a2+a3)/3);
       acc = accPoints[accPoints.length-1];
       accSlider.value(acc);
     }
     if (!playing){
       velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
+      velPoints[velPoints.length-2] = (velPoints[velPoints.length-1] + velPoints[velPoints.length-3])/2;
       vel = velPoints[velPoints.length-1];
+      accPoints[accPoints.length-1] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-4])/(3*deltaT);
     }
   }
   function setAccValue(){
