@@ -21,6 +21,9 @@ var vOld = 0;
 var pOld = 0;
 var temp;
 
+var posArr = [];
+var velArr = [];
+
 function reset(){
   posPoints = [];
   velPoints = [];
@@ -88,6 +91,10 @@ var sketch = function(p){
     posSlider.style('rotate', 270);
     velSlider.style('rotate', 270);
     accSlider.style('rotate', 270);
+    for (let i =0; i<50; i++){
+      posArr.push(pos);
+      velArr.push(vel);
+    }
   }
   p.draw = function() {
     p.background(80,180,80);
