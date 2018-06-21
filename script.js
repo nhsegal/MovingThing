@@ -276,9 +276,13 @@ var sketch = function(p){
       acc = (velArr[velArr.length-1]-velArr[0])/(deltaT*velArr.length);
       accArr.push(acc);
       accArr.shift();
+      accArr.push(acc);
+      accArr.shift();
+      accArr.push(acc);
+      accArr.shift();
       accPoints.push(average(accArr));
       accSlider.value((acc+10)*10);
-      t = t +deltaT;
+      t = t + deltaT;
     }
     if (!playing){
       velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
@@ -291,6 +295,12 @@ var sketch = function(p){
   function setAccValue(){
     accControlled = true;
     if(playing){
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
       accArr.push((accSlider.value()-100)/10);
       accArr.shift();
       accArr.push((accSlider.value()-100)/10);
@@ -317,7 +327,7 @@ var sketch = function(p){
 var posGraph = function(p) {
   var xMargin = 80;
   var yMargin = 10;
-  var xScale = 80;
+  var xScale = 160;
   var yScale = -8;
 
 	p.setup = function() {
@@ -363,7 +373,7 @@ var posGraph = function(p) {
 var velGraph = function(p) {
   var xMargin = 80;
   var yMargin = 10;
-  var xScale = 80;
+  var xScale = 160;
   var yScale = -4;
 
 	p.setup = function() {
@@ -409,8 +419,8 @@ var velGraph = function(p) {
 var accGraph = function(p) {
   var xMargin = 80;
   var yMargin = 10;
-  var xScale = 80;
-  var yScale = -1;
+  var xScale = 160;
+  var yScale = -4;
 
 	p.setup = function() {
     p.createCanvas(1100, 200);
