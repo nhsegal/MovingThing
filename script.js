@@ -44,15 +44,16 @@ function reset(){
 function togglePlaying(){
   if (!playing){
     StartButton.html('Pause');
+    posPoints.push(pOld);
     posPoints.push((pos+pOld)/2);
-    v2 = (pos-pOld)/deltaT;
-    velPoints.push((v2+vOld)/2);
-    accPoints.push((velPoints[velPoints.length-1]-vOld)/deltaT);
-    posGraph();
-    //posPoints.push(pOld);
-    //velPoints.push(vOld);
-
-
+    posPoints.push(pos);
+    temp = (pos-pOld)/deltaT;
+    velPoints.push(vOld);
+    velPoints.push((temp+vOld)/2);
+    velPoints.push(temp);
+    accPoints.push((velPoints[velPoints.length-4]-velPoints[velPoints.length-2])/(2*deltaT));
+    accPoints.push((velPoints[velPoints.length-3]-velPoints[velPoints.length-1])/(2*deltaT));
+    accPoints.push((velPoints[velPoints.length-2]-velPoints[velPoints.length-1])/deltaT);
     playing = true;
   }
   else{
