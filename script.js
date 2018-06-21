@@ -10,17 +10,16 @@ var posSlider, velSlider, accSlider;
 var StartButton, ResetButton;
 var playing = false;
 var clearGraphs = false;
-var controlled = false;
-
-var v1 = 0;
+var posControlled = false;
+var velControlled = false;
+var accControlled = false;
 var v2 = 0;
 var v3 = 0;
-var v4 = 0;
-var a1 = 0;
-var a2 = 0;
-var a3 = 0;
-
-var tolerance = 0.1;
+var x2 = 0;
+var x3 = 0;
+var vOld = 0;
+var pOld = 0;
+var temp;
 
 function reset(){
   posPoints = [];
@@ -31,28 +30,37 @@ function reset(){
   pos = 0;
   vel = 0;
   acc = 0;
-  v1 = 0;
-  v2 = 0;
-  v3 = 0;
-  v4 = 0;
-  a1 = 0;
-  a2 = 0;
-  a3 = 0;
   playing = false;
   clearGraphs = true;
   StartButton.html('Go');
   posSlider.value(100);
   velSlider.value(100);
   accSlider.value(100);
+  posControlled = false;
+  velControlled = false;
+  accControlled = false;
 }
 
 function togglePlaying(){
   if (!playing){
     StartButton.html('Pause');
+    posPoints.push(pOld);
+    posPoints.push((pos+pOld)/2);
+    posPoints.push(pos);
+    temp = (pos-pOld)/deltaT;
+    velPoints.push(vOld);
+    velPoints.push((temp+vOld)/2);
+    velPoints.push(temp);
+    accPoints.push((velPoints[velPoints.length-4]-velPoints[velPoints.length-2])/(2*deltaT));
+    accPoints.push((velPoints[velPoints.length-3]-velPoints[velPoints.length-1])/(2*deltaT));
+    accPoints.push((velPoints[velPoints.length-2]-velPoints[velPoints.length-1])/deltaT);
     playing = true;
   }
   else{
     playing = false;
+    pOld = posPoints.slice(posPoints.length-1, posPoints.length)[0];
+    StartButton.html('Go');
+    vOld = velPoints.slice(velPoints.length-1, velPoints.length)[0];
     StartButton.html('Go');
   }
 }
@@ -80,27 +88,6 @@ var sketch = function(p){
     posSlider.style('rotate', 270);
     velSlider.style('rotate', 270);
     accSlider.style('rotate', 270);
-
-    /*
-        posSlider.mousePressed(
-          function(){
-            console.log('here');
-            posPoints.push(pos);
-            velPoints.push((v1+v2+v3+v4)/4);
-            accPoints.push((a1+a2+a3)/3);
-            vel=0;
-            acc=0;
-            controlled=true});
-
-        posSlider.mouseReleased(function(){
-          console.log('there');
-          posPoints.push(pos);
-          velPoints.push((v1+v2+v3+v4)/4);
-          accPoints.push((a1+a2+a3)/3);
-          vel=0;
-          acc=0;
-          controlled=false});
-    */
   }
   p.draw = function() {
     p.background(80,180,80);
@@ -111,9 +98,9 @@ var sketch = function(p){
       updateMotion();
     }
     drawMover();
-    posSlider.changed(function(){ vel= 0; acc=0; controlled=false});
-    velSlider.changed(function(){ acc=0; controlled=false});
-    accSlider.changed(function(){controlled=false});
+    posSlider.changed(function(){ vel= 0; acc=0; posControlled=false});
+    velSlider.changed(function(){ acc=0; velControlled=false});
+    accSlider.changed(function(){ accControlled=false});
   }
 
   function drawNumberLine() {
@@ -137,63 +124,82 @@ var sketch = function(p){
     p.ellipse(0, 0, p.moverRad, p.moverRad);
     p.pop();
   }
+
   function updateMotion(){
-    if (!controlled){
+    if (posPoints.length > 10){
+      x2 = (1/3)*(posPoints.slice(posPoints.length-1,posPoints.length)[0]+
+        posPoints.slice(posPoints.length-2,posPoints.length-1)[0]+
+        posPoints.slice(posPoints.length-3,posPoints.length-2)[0]);
+      v2 = (1/3)*(velPoints.slice(velPoints.length-1,velPoints.length)[0]+
+        velPoints.slice(velPoints.length-2,velPoints.length-1)[0]+
+        velPoints.slice(velPoints.length-3,velPoints.length-2)[0]);
+      /*  if ((t >= 0.8) && (t<0.85)){
+          temp = posPoints.slice(posPoints.length-1,posPoints.length)[0]
+          console.log(temp);
+        }
+        */
+    }
+    if (!posControlled || !velControlled || !accControlled){
       vel = vel + deltaT*acc;
       pos = pos + deltaT*vel;
+      posPoints.push(pos);
+      velPoints.push(vel);
+      accPoints.push(acc);
+      t = t+deltaT;
     }
-    posPoints.push(pos);
-    velPoints.push(vel);
-    accPoints.push(acc);
-    if (posPoints.length > 8){
-      posPoints[posPoints.length-2] = (posPoints[posPoints.length-1] + posPoints[posPoints.length-3])/2;
-      velPoints[velPoints.length-2] = (posPoints[posPoints.length-1] - posPoints[posPoints.length-6])/(5*deltaT);
-      accPoints[accPoints.length-2] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-6])/(5*deltaT);
+
+    if (posControlled){
+      setPosValue();
     }
-    t = t+deltaT;
+
+    if (velControlled){
+      setVelValue();
+    }
+
+    if (accControlled){
+      setAccValue();
+    }
+
+
   };
 
   function setPosValue(){
-    controlled = true;
+    posControlled = true;
     if (playing){
       pos = (posSlider.value()-100)/10;
-      posPoints.push(pos);
-      vel = (posPoints[posPoints.length-1]-posPoints[posPoints.length-4])/(3*deltaT);
-      velPoints.push(vel);
-      velSlider.value(vel);
-      accPoints.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-3])/(2*deltaT));
+      posPoints.push(x2);
+      velPoints.push((posPoints[posPoints.length-1]-posPoints[posPoints.length-61])/(60*deltaT));
+      vel = velPoints[velPoints.length-1];
+      velSlider.value((vel+10)*10);
+      accPoints.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-61])/(60*deltaT));
       acc = accPoints[accPoints.length-1];
-      accSlider.value(acc);
+      accSlider.value((acc+10)*10);
+      t = deltaT +t;
     }
     if (!playing){
       posPoints[posPoints.length-1] = (posSlider.value()-100)/10;
-      posPoints[posPoints.length-2] = (posPoints[posPoints.length-1] + posPoints[posPoints.length-3])/2;
       pos = posPoints[posPoints.length-1];
 
       velPoints[velPoints.length-1] = (posPoints[posPoints.length-1] - posPoints[posPoints.length-4])/(3*deltaT);
-      //velPoints[velPoints.length-2] = (velPoints[velPoints.length-1] + velPoints[velPoints.length-3])/2;
       vel = velPoints[velPoints.length-1];
 
       accPoints[accPoints.length-1] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-4])/(3*deltaT);
-      //accPoints[accPoints.length-2] = (accPoints[accPoints.length-1] + accPoints[accPoints.length-3])/2;
       acc = accPoints[accPoints.length-1];
     }
   }
 
   function setVelValue(){
-    controlled = true;
+    velControlled = true;
     if (playing){
       velPoints.push((velSlider.value()-100)/10);
       vel = velPoints[velPoints.length-1];
-      posPoints.push(pos+vel*deltaT);
-      posSlider.value((pos+vel*deltaT)*10 + 100);
-      pos = pos + vel*deltaT
-      a1 = (velPoints[velPoints.length-1]-velPoints[velPoints.length-2])/deltaT
-      a2 = (velPoints[posPoints.length-2]-velPoints[posPoints.length-3])/deltaT
-      a3 = (velPoints[posPoints.length-3]-velPoints[posPoints.length-4])/(deltaT)
-      accPoints.push((a1+a2+a3)/3);
+      pos = pos + vel*deltaT;
+      posPoints.push(pos);
+      posSlider.value(pos*10 + 100);
+      accPoints.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-11])/(10*deltaT));
       acc = accPoints[accPoints.length-1];
-      accSlider.value(acc);
+      accSlider.value((acc+10)*10);
+      t = t +deltaT;
     }
     if (!playing){
       velPoints[velPoints.length-1] = (velSlider.value()-100)/10;
@@ -203,16 +209,14 @@ var sketch = function(p){
     }
   }
   function setAccValue(){
-    controlled = true;
-    if (playing){
+    accControlled = true;
+    if(playing){
       accPoints.push((accSlider.value()-100)/10);
-      acc = accPoints[accPoints.length-1];
       velPoints.push(vel+acc*deltaT);
       posPoints.push(pos+vel*deltaT);
-      velSlider.value((vel+acc*deltaT)*10 + 100);
-      posSlider.value((pos+vel*deltaT)*10 + 100);
-      vel = vel + acc*deltaT;
-      pos = pos + vel*deltaT;
+      vel = vel + deltaT*acc;
+      pos = pos + deltaT*vel;
+      t = t + deltaT;
     }
     if (!playing){
       accPoints[accPoints.length-1] = (accSlider.value()-100)/10;
@@ -336,7 +340,7 @@ var accGraph = function(p) {
   }
 
   function plotPoints(){
-    p.stroke(0,250,0);
+    p.stroke(0,180,0);
     p.strokeWeight(2);
     p.noFill();
     p.strokeJoin(p.ROUND);
