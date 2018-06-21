@@ -201,17 +201,27 @@ var sketch = function(p){
     if (playing){
       pos = (posSlider.value()-100)/10;
       posArr.push(pos);
+      posArr.push(pos);
+      posArr.push(pos);
+      posArr.push(pos);
+      posArr.shift();
+      posArr.shift();
+      posArr.shift();
       posArr.shift();
       posPoints.push(average(posArr));
       pos = posPoints[posPoints.length-1]
 
       velArr.push((posArr[posArr.length-1]- posArr[0])/(deltaT*posArr.length));
       velArr.shift();
+      velArr.push((posArr[posArr.length-1]- posArr[0])/(deltaT*posArr.length));
+      velArr.shift();
       velPoints.push(average(velArr));
+
       vel = velPoints[velPoints.length-1];
       velSlider.value((vel+10)*10);
 
-
+      accArr.push((velArr[velArr.length-1]-velArr[0])/(deltaT*velArr.length));
+      accArr.shift();
       accArr.push((velArr[velArr.length-1]-velArr[0])/(deltaT*velArr.length));
       accArr.shift();
       accPoints.push(average(accArr))
@@ -223,6 +233,8 @@ var sketch = function(p){
     if (!playing){
       pos = (posSlider.value()-100)/10;
       posArr[posArr.length-1] = pos;
+      posArr[posArr.length-2] = pos;
+
       posPoints[posPoints.length-1] = (average(posArr));
       pos = posPoints[posPoints.length-1]
 
@@ -242,6 +254,10 @@ var sketch = function(p){
   function setVelValue(){
     velControlled = true;
     if (playing){
+      velArr.push((velSlider.value()-100)/10);
+      velArr.shift();
+      velArr.push((velSlider.value()-100)/10);
+      velArr.shift();
       velArr.push((velSlider.value()-100)/10);
       velArr.shift();
       velPoints.push(average(velArr));
@@ -266,15 +282,25 @@ var sketch = function(p){
       accPoints[accPoints.length-1] = (velPoints[velPoints.length-1] - velPoints[velPoints.length-4])/(3*deltaT);
     }
   }
+
   function setAccValue(){
     accControlled = true;
     if(playing){
-      accPoints.push((accSlider.value()-100)/10);
-      velPoints.push(vel+acc*deltaT);
-      posPoints.push(pos+vel*deltaT);
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
+      accArr.push((accSlider.value()-100)/10);
+      accArr.shift();
+      accPoints.push(average(accArr));
       acc = accPoints[accPoints.length-1];
       vel = vel + deltaT*acc;
       pos = pos + deltaT*vel;
+
+      velPoints.push(vel+acc*deltaT);
+      posPoints.push(pos+vel*deltaT);
+
+
       t = t + deltaT;
     }
     if (!playing){
@@ -319,9 +345,12 @@ var posGraph = function(p) {
     p.strokeJoin(p.ROUND);
 
     p.beginShape();
-    for (var i = 0; i < posPoints.length; i++){
-      p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
+    if (playing){
+      for (var i = 0; i < posPoints.length; i++){
+        p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*posPoints[i]);
+      }
     }
+
     p.endShape();
   }
 
@@ -360,9 +389,12 @@ var velGraph = function(p) {
     p.noFill();
     p.strokeJoin(p.ROUND);
     p.beginShape();
-    for (var i = 0; i < velPoints.length; i++){
-      p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*velPoints[i]);
+    if (playing){
+      for (var i = 0; i < velPoints.length; i++){
+        p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*velPoints[i]);
+      }
     }
+
     p.endShape();
   }
 
@@ -404,9 +436,12 @@ var accGraph = function(p) {
     p.noFill();
     p.strokeJoin(p.ROUND);
     p.beginShape();
-    for (var i = 0; i < accPoints.length; i++){
-      p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*accPoints[i]);
+    if(playing){
+      for (var i = 0; i < accPoints.length; i++){
+        p.vertex(xScale*deltaT*i + xMargin, p.height/2+ yScale*accPoints[i]);
+      }
     }
+
     p.endShape();
   }
 
