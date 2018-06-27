@@ -2,7 +2,7 @@ let posPoints = [];
 let velPoints = [];
 let accPoints = [];
 let t = 0;
-const deltaT = .002;
+const deltaT = .02;
 const xMargin = 80;
 let pos = 0;
 let vel = 0;
@@ -19,8 +19,19 @@ let posArr = [];
 let velArr = [];
 let accArr = [];
 
-let len = 11;
+let len = 3;
+
 let average = (array) => array.reduce((a, b) => a + b) / array.length;
+
+let averageSlope = function(array){
+    let num = 0;
+    let denom = 0;
+    for (let i = 0; i<array.length; i++){
+      num += (array[i] - average(array))*(deltaT*i-deltaT*(array.length-1)/2);
+      denom += (deltaT*i-deltaT*(array.length-1)/2)*(deltaT*i-deltaT*(array.length-1)/2);
+    }
+    return(num/denom)
+}
 
 function reset(){
   posPoints.length=0;
@@ -76,6 +87,7 @@ var sketch = function(p){
   p.moverRad = 10;
   p.ypos = 80;
   p.setup  = function() {
+    p.frameRate(10);
     p.createCanvas(1200, 120);
     StartButton = p.createButton('Go');
     StartButton.position(29, 29);
@@ -115,20 +127,28 @@ var sketch = function(p){
       acc=0;
       for (let i =0; i<len; i++){
         posArr.push(pos);
+        posArr.shift(0);
         velArr.push(0);
+        velArr.shift();
         accArr.push(0);
+        accArr.shift();
       }
 
       posControlled=false;
       velControlled=false;
-      accControlled=false;});
+      accControlled=false;
+      console.log(posArr.length);
+    });
 
     velSlider.changed(function(){
       acc=0;
       for (let i =0; i<len; i++){
         posArr.push(pos+vel*deltaT);
+        posArr.shift();
         velArr.push(vel);
+        velArr.shift();
         accArr.push(0);
+        accArr.shift(0);
       }
       posControlled=false;
       velControlled=false;
@@ -137,8 +157,11 @@ var sketch = function(p){
     accSlider.changed(function(){
       for (let i =0; i<len; i++){
         accArr.push(acc);
+        accArr.shift();
         velArr.push(vel+acc*deltaT);
+        velArr.shift();
         posArr.push(pos+vel*deltaT);
+        posArr.shift();
       }
       posControlled=false;
       velControlled=false;
@@ -202,19 +225,17 @@ var sketch = function(p){
     posControlled = true;
     pos = (posSlider.value()-100)/10;
     if (playing){
-      for (let i = 0; i<1; i++){
-        posArr.push(pos);
-        posArr.shift();
-      }
+      posArr.push(pos);
+      posArr.shift();
       posPoints.push(average(posArr));
 
-      velArr.push((posPoints[posPoints.length-1]- posPoints[posPoints.length-1-2*len])/(deltaT*2*len));
+      velArr.push(averageSlope(posArr));
       velArr.shift();
       velPoints.push(average(velArr));
       vel = velPoints[velPoints.length-1];
       velSlider.value((vel+10)*10);
 
-      accArr.push((velPoints[velPoints.length-1]-velPoints[velPoints.length-1-3*len])/(deltaT*3*len));
+      accArr.push(averageSlope(velArr));
       accArr.shift();
       accPoints.push(average(accArr))
       acc = accPoints[accPoints.length-1];
@@ -249,21 +270,26 @@ var sketch = function(p){
       for (let i = 0; i<len; i++){
         velArr.push(vel);
         velArr.shift();
-      }
-      velPoints.push(average(velArr));
 
+        accArr.push(averageSlope(velArr));
+        accArr.shift();
+        accPoints.push(average(accArr))
+        acc = accPoints[accPoints.length-1];
+        accSlider.value((acc+10)*10);
+        t = deltaT +t;
+      }
       pos = pos + vel*deltaT;
       posArr.push(pos);
       posArr.shift();
-      posPoints.push(average(posArr));
       posSlider.value(pos*10 + 100);
 
-      acc = (velPoints[velPoints.length-1]-velPoints[velPoints.length-1-2*len])/(deltaT*2*len);
+      acc = averageSlope(velArr);
       accArr.push(acc);
       accArr.shift();
-      accPoints.push(average(accArr));
       accSlider.value((acc+10)*10);
-      t = t + deltaT;
+
+    
+      velControlled = false;
     }
 
     if (!playing){
@@ -277,14 +303,6 @@ var sketch = function(p){
   function setAccValue(){
     accControlled = true;
     if(playing){
-      accArr.push((accSlider.value()-100)/10);
-      accArr.shift();
-      accArr.push((accSlider.value()-100)/10);
-      accArr.shift();
-      accArr.push((accSlider.value()-100)/10);
-      accArr.shift();
-      accArr.push((accSlider.value()-100)/10);
-      accArr.shift();
       accArr.push((accSlider.value()-100)/10);
       accArr.shift();
       accArr.push((accSlider.value()-100)/10);
