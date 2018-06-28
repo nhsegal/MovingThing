@@ -15,6 +15,8 @@ let posControlled = false;
 let velControlled = false;
 let accControlled = false;
 
+let tempTime = 0;
+
 let posArr = [];
 let velArr = [];
 let accArr = [];
@@ -224,6 +226,7 @@ var sketch = function(p){
   };
 
   function setPosValue(){
+    tempTime = time+deltaT;
     posControlled = true;
     pos = (posSlider.value()-100)/10;
     if (playing){
