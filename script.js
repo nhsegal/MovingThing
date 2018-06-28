@@ -226,7 +226,7 @@ var sketch = function(p){
   };
 
   function setPosValue(){
-    tempTime = time+deltaT;
+    tempTime = t+deltaT;
     posControlled = true;
     pos = (posSlider.value()-100)/10;
     if (playing){
