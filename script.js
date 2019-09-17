@@ -68,15 +68,15 @@ function togglePlaying(){
     StartButton.html('Pause');
     posArr.push(pos);
     posArr.shift();
-    posPoints.push(average(posArr));
+    posPoints.push(pos);
 
     velArr.push(vel);
     velArr.shift();
-    velPoints.push(average(velArr));
+    velPoints.push(averageSlope(posArr));
 
     accArr.push(acc);
     accArr.shift();
-    accPoints.push((velArr[velArr.length-1]-velArr[velArr.length-2])/deltaT)
+    accPoints.push(averageSlope(velArr));
     playing = true;
   }
   else{
@@ -89,7 +89,7 @@ var sketch = function(p){
   p.moverRad = 10;
   p.ypos = 80;
   p.setup  = function() {
-    p.frameRate(10);
+    p.frameRate(30);
     p.createCanvas(1200, 120);
     StartButton = p.createButton('Go');
     StartButton.position(29, 29);
@@ -127,7 +127,7 @@ var sketch = function(p){
     posSlider.changed(function(){
       vel= 0;
       acc=0;
-      for (let i =0; i<arrLen; i++){
+      for (let i =0; i<arrLen/2; i++){
         posArr.push(pos);
         posArr.shift();
         velArr.push(0);
@@ -207,11 +207,13 @@ var sketch = function(p){
       posPoints.push(average(posArr));
       velPoints.push(average(velArr));
       accPoints.push(average(accArr));
+
       t = t+deltaT;
     }
 
     if (posControlled){
-      setPosValue();
+      setInterval(setPosValue, 1000/30);
+
     }
 
     if (velControlled){
@@ -226,25 +228,29 @@ var sketch = function(p){
   };
 
   function setPosValue(){
-    tempTime = t+deltaT;
     posControlled = true;
     pos = (posSlider.value()-100)/10;
     if (playing){
-      posArr.push(pos);
-      posArr.shift();
+      playing = !playing;
+      for (let i = 0; i<arrLen/2; i++){
+        posArr.push(pos);
+        posArr.shift();
+        velArr.push(averageSlope(posArr));
+        velArr.shift();
+        accArr.push(averageSlope(velArr));
+        accArr.shift();
+      }
       posPoints.push(average(posArr));
-
-      velArr.push(averageSlope(posArr));
-      velArr.shift();
       velPoints.push(average(velArr));
       vel = velPoints[velPoints.length-1];
       velSlider.value((vel+10)*10);
 
-      accArr.push(averageSlope(velArr));
-      accArr.shift();
       accPoints.push(average(accArr))
       acc = accPoints[accPoints.length-1];
       accSlider.value((acc+10)*10);
+
+        posGraph.plotPoints();
+      t = t+deltaT;
     }
 
     if (!playing){
